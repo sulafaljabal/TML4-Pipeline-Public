@@ -1,0 +1,72 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="Pipeline flow (merge/as)" id="pipeline-flow">
+    <mxGraphModel dx="900" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="920" pageHeight="1110" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="Cancer response predictor - pipeline modules &amp; data flow (branch merge/as).   Each box: NAME (file) . key options . IN / OUT.   Target y in {0,1}: 1 = responds, 0 = does not.   Rule: OUT of each module = IN of the next." style="text;html=1;align=left;fontStyle=1;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="24" y="16" width="872" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="gui" value="GUI  -  app.py + ui/   (sidebar + tabs: 1 Build a model / 2 Save-load / 3 Predict patients).   Plain-language labels, ? help tooltips, Advanced settings, verdict-first results." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF6EE;strokeColor=#2E5E2E;fontSize=11;fontStyle=1;align=left;verticalAlign=middle;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="24" y="54" width="872" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m1" value="1  LOADER   (m1_loader.py)&#10;load: CSV/TSV, Tan-format, or synthetic; text labels -&gt; 0/1&#10;IN:   a data file (rows = patients, cols = genes + a y label)&#10;OUT:  X [n x g], y [n in {0,1}], gene names" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2D5B7A;strokeColor=#1C3E56;fontColor=#FFFFFF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="320" y="96" width="380" height="82" as="geometry" />
+        </mxCell>
+        <mxCell id="m2" value="2  PREPROCESS   (m2_preprocess.py)&#10;options: identity / z-score / robust / variance-filter + z-score&#10;IN:   X [n x g]                              (from module 1)&#10;OUT:  X' [n x g'] - same patients, columns rescaled / filtered" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2E6E5E;strokeColor=#1E4A3F;fontColor=#FFFFFF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="320" y="200" width="380" height="82" as="geometry" />
+        </mxCell>
+        <mxCell id="m3" value="3  FEATURE MAP   (m3_feature_map.py)&#10;options: identity / PCA(50) / class-conditional PCA / rank&#10;IN:   X' [n x g']                            (from module 2)&#10;OUT:  Z [n x k] - model-ready feature matrix" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2E6E5E;strokeColor=#1E4A3F;fontColor=#FFFFFF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="320" y="304" width="380" height="82" as="geometry" />
+        </mxCell>
+        <mxCell id="m4" value="4  CLASSIFIER   (m4_ml.py + estimators.py)&#10;options: RF, GB, Hist GB, LogReg, SVM(lin/RBF), tree, NB, kNN, K-TSP, NSC&#10;IN:   Z [n x k] + y [n]                      (from module 3)&#10;OUT:  fitted classifier -&gt; y_hat + P(respond) per patient" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3A4A86;strokeColor=#26315A;fontColor=#FFFFFF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="320" y="408" width="380" height="82" as="geometry" />
+        </mxCell>
+
+        <mxCell id="asm" value="ASSEMBLER   (assemble.py)&#10;&#10;build_machine(2 -&gt; 3 -&gt; 4)&#10;= ONE sklearn Pipeline.&#10;&#10;Learned scaling + feature-map&#10;basis travel WITH the classifier,&#10;so predict re-applies the exact&#10;same steps.  Raw X in -&gt; y_hat / P out.&#10;&#10;+ compatibility_warnings():&#10;flags combos that can't fit." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F6;strokeColor=#2D5B7A;dashed=1;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
+          <mxGeometry x="24" y="200" width="284" height="286" as="geometry" />
+        </mxCell>
+        <mxCell id="auto" value="AUTO (pick best)&#10;&#10;Set any of stages 2-4 to&#10;'Auto'; Build evaluates&#10;those options in parallel&#10;(slowest-first), skips&#10;combos that can't fit,&#10;never picks an unreliable&#10;one, keeps the best.&#10;&#10;Optional TIME BUDGET drops&#10;setups predicted to overrun&#10;before they run (default:&#10;no limit = full search).&#10;&#10;COMPARE grid (2 x 3 x 4)&#10;-&gt; ranked table + CSV/PDF." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAEEDA;strokeColor=#BA7517;dashed=1;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
+          <mxGeometry x="712" y="200" width="184" height="266" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m5" value="5  EVALUATE   (m5_evaluate.py)&#10;k-fold CV (auto/manual folds); tiny classes -&gt; no-fold resubstitution&#10;IN:   assembled machine + X, y               (from modules 2-4)&#10;OUT:  metrics = acc, sens, spec, AUC, confusion + UNRELIABLE flag&#10;      (predicted one class only / never converged -&gt; not real learning)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2E5E2E;strokeColor=#204520;fontColor=#FFFFFF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="320" y="528" width="380" height="96" as="geometry" />
+        </mxCell>
+        <mxCell id="m6" value="6  REPORT   (m6_report.py)&#10;verdict-first metrics table, confusion matrix, run config&#10;IN:   metrics + run config                   (from module 5)&#10;OUT:  on-screen report + downloadable PDF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4B2E6B;strokeColor=#352050;fontColor=#FFFFFF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="320" y="632" width="380" height="82" as="geometry" />
+        </mxCell>
+
+        <mxCell id="trained" value="TRAINED MACHINE   (the assembled Pipeline, fit on ALL data)&#10;kept in the session;  saved / loaded as a locked .tml4model file" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7A3B1F;strokeColor=#5A2A16;fontColor=#FFFFFF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="320" y="742" width="380" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="predict" value="PREDICT   (ui/predict.py)&#10;IN:   trained machine + new patients X_new [m x g]&#10;OUT:  yes/no + P(respond) per patient   (checks feature count)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5B6770;strokeColor=#3F474E;fontColor=#FFFFFF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="320" y="824" width="380" height="82" as="geometry" />
+        </mxCell>
+        <mxCell id="m7" value="7  EXPLAIN   (m7_explain.py)&#10;occlude one gene at a time, watch predict_proba shift&#10;IN:   trained machine + patient x + training-set means (occlusion ref)&#10;OUT:  top genes behind that prediction (gene-level even under PCA)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F6E56;strokeColor=#085041;fontColor=#FFFFFF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="320" y="928" width="380" height="82" as="geometry" />
+        </mxCell>
+        <mxCell id="reports" value="Prediction &amp; comparison PDFs are produced by m6_report.py too:&#10;per-patient verdicts + top genes, and setup-comparison tables." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F0FA;strokeColor=#4B2E6B;fontSize=10;align=left;verticalAlign=middle;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="320" y="1032" width="380" height="48" as="geometry" />
+        </mxCell>
+
+        <mxCell id="saveload" value="SAVE / LOAD   (ui/model.py)&#10;&#10;Download the trained&#10;machine as a LOCKED&#10;.tml4model file:&#10;authenticated-encrypted&#10;+ app-locked - opens&#10;only here, can't be&#10;edited or reused&#10;(see README Security)." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2F6FB;strokeColor=#5B6770;dashed=1;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
+          <mxGeometry x="712" y="724" width="184" height="152" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" value="X, y" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#5B6770;strokeWidth=1.5;fontSize=10;" parent="1" edge="1" source="m1" target="m2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" value="X'" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#5B6770;strokeWidth=1.5;fontSize=10;" parent="1" edge="1" source="m2" target="m3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" value="Z" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#5B6770;strokeWidth=1.5;fontSize=10;" parent="1" edge="1" source="m3" target="m4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" value="cross-validate" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#5B6770;strokeWidth=1.5;fontSize=10;" parent="1" edge="1" source="m4" target="m5"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" value="metrics" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#5B6770;strokeWidth=1.5;fontSize=10;" parent="1" edge="1" source="m5" target="m6"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" value="fit on ALL data" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#7A3B1F;strokeWidth=1.5;fontSize=10;dashed=1;" parent="1" edge="1" source="asm" target="trained"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#5B6770;strokeWidth=1.5;" parent="1" edge="1" source="trained" target="predict"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" value="prediction" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#5B6770;strokeWidth=1.5;fontSize=10;" parent="1" edge="1" source="predict" target="m7"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#5B6770;strokeWidth=1.5;" parent="1" edge="1" source="m7" target="reports"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e10" value=".tml4model" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=open;startArrow=open;strokeColor=#5B6770;strokeWidth=1.5;dashed=1;fontSize=10;" parent="1" edge="1" source="trained" target="saveload"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
