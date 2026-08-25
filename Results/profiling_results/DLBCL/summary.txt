@@ -1,0 +1,68 @@
+TML4 grid profiling summary
+========================================
+host              : scc-ge2
+logical cores     : 32
+app would use     : 16 (pipeline.max_workers; set TML4_MAX_JOBS to cap it)
+dataset           : DLBCL.txt [tan]
+matrix (n x p)    : 77 x 7129
+rigour            : 5-fold CV
+registries        : 5 preprocess x 5 feature maps x 11 models = 275
+combinations      : 275 (275 ok, 0 failed, 0 timed out)
+non-converged     : 0 (ran, but a solver hit its iteration limit)
+unreliable        : 8 (ran, but the app would refuse to auto-pick them)
+total serial time : 746.6s (sum of per-combo, single-threaded, excl. timeouts)
+
+Worst offenders (slowest 15):
+    25.317s  Robust standardize (median/IQR) | None (identity) | Gradient Boosting
+    24.898s  Variance filter + standardize | Rank transform (TSP-style) | Gradient Boosting
+    24.797s  Standardize (z-score) | Rank transform (TSP-style) | Gradient Boosting
+    23.770s  Robust standardize (median/IQR) | Rank transform (TSP-style) | Gradient Boosting
+    22.878s  None (identity) | None (identity) | Gradient Boosting
+    22.781s  Standardize (z-score) | None (identity) | Gradient Boosting
+    22.572s  Variance filter + standardize | None (identity) | Gradient Boosting
+    21.883s  Log2 + standardize | Rank transform (TSP-style) | Gradient Boosting
+    20.465s  None (identity) | Rank transform (TSP-style) | Gradient Boosting
+    18.215s  Log2 + standardize | None (identity) | Gradient Boosting
+    17.232s  Robust standardize (median/IQR) | Rank transform (TSP-style) | Hist Gradient Boosting
+    16.625s  Robust standardize (median/IQR) | None (identity) | Hist Gradient Boosting
+    16.283s  Log2 + standardize | Rank transform (TSP-style) | Hist Gradient Boosting
+    15.849s  None (identity) | Rank transform (TSP-style) | Hist Gradient Boosting
+    15.274s  Variance filter + standardize | Rank transform (TSP-style) | Hist Gradient Boosting
+
+Time by classifier (summed over preprocess x feature-map):
+   251.833s  Gradient Boosting
+   169.852s  Hist Gradient Boosting
+   128.131s  Random Forest
+    61.123s  K-TSP (Top-Scoring Pairs)
+    22.902s  SVM (RBF)
+    22.257s  SVM (linear)
+    20.276s  Logistic Regression
+    19.796s  Decision Tree
+    16.948s  Naive Bayes
+    16.830s  k-NN
+    16.662s  Nearest Shrunken Centroid
+
+Time by feature map:
+   279.322s  Rank transform (TSP-style)
+   252.840s  None (identity)
+    80.897s  Select best 500 genes
+    69.171s  PCA (50 components)
+    64.379s  Class-conditional PCA
+
+Flagged unreliable by the app's honesty guard (collapsed to one class, finds almost none of one group, no better than chance, or did not converge):
+  bal.acc 0.509  Standardize (z-score) | Class-conditional PCA | k-NN
+  bal.acc 0.509  Robust standardize (median/IQR) | Class-conditional PCA | Gradient Boosting
+  bal.acc 0.526  Robust standardize (median/IQR) | Class-conditional PCA | k-NN
+  bal.acc 0.509  Variance filter + standardize | Class-conditional PCA | k-NN
+  bal.acc 0.483  Log2 + standardize | None (identity) | Naive Bayes
+  bal.acc 0.491  Log2 + standardize | Class-conditional PCA | Random Forest
+  bal.acc 0.518  Log2 + standardize | Class-conditional PCA | SVM (RBF)
+  bal.acc 0.491  Log2 + standardize | Class-conditional PCA | k-NN
+
+Parallel speedup (whole grid, dispatched slowest-first with batch_size=1 -- the app's scheduler):
+  cores   wall(s)   speedup   efficiency
+      1     737.3      1.0   1.0
+      2     381.8   1.9313   0.9657
+      4     194.7   3.7873   0.9468
+      8     101.7   7.2472   0.9059
+     16      58.5   12.607   0.7879

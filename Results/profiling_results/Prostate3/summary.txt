@@ -1,0 +1,61 @@
+TML4 grid profiling summary
+========================================
+host              : scc-gf4
+logical cores     : 32
+app would use     : 16 (pipeline.max_workers; set TML4_MAX_JOBS to cap it)
+dataset           : Prostate3.txt [tan]
+matrix (n x p)    : 33 x 12626
+rigour            : 5-fold CV
+registries        : 5 preprocess x 5 feature maps x 11 models = 275
+combinations      : 275 (275 ok, 0 failed, 0 timed out)
+non-converged     : 0 (ran, but a solver hit its iteration limit)
+unreliable        : 1 (ran, but the app would refuse to auto-pick them)
+total serial time : 826.8s (sum of per-combo, single-threaded, excl. timeouts)
+
+Worst offenders (slowest 15):
+    36.543s  Robust standardize (median/IQR) | Rank transform (TSP-style) | Hist Gradient Boosting
+    36.021s  Robust standardize (median/IQR) | None (identity) | Hist Gradient Boosting
+    33.118s  None (identity) | Rank transform (TSP-style) | Hist Gradient Boosting
+    33.101s  Log2 + standardize | Rank transform (TSP-style) | Hist Gradient Boosting
+    33.055s  Variance filter + standardize | Rank transform (TSP-style) | Hist Gradient Boosting
+    32.796s  Standardize (z-score) | Rank transform (TSP-style) | Hist Gradient Boosting
+    32.624s  Variance filter + standardize | None (identity) | Hist Gradient Boosting
+    32.600s  None (identity) | None (identity) | Hist Gradient Boosting
+    32.507s  Standardize (z-score) | None (identity) | Hist Gradient Boosting
+    32.416s  Log2 + standardize | None (identity) | Hist Gradient Boosting
+    11.565s  Robust standardize (median/IQR) | Rank transform (TSP-style) | Gradient Boosting
+    11.209s  Robust standardize (median/IQR) | None (identity) | Gradient Boosting
+     8.305s  Robust standardize (median/IQR) | Rank transform (TSP-style) | Random Forest
+     8.101s  Variance filter + standardize | Rank transform (TSP-style) | Gradient Boosting
+     8.089s  Standardize (z-score) | Rank transform (TSP-style) | Gradient Boosting
+
+Time by classifier (summed over preprocess x feature-map):
+   353.762s  Hist Gradient Boosting
+   131.154s  Random Forest
+   104.138s  Gradient Boosting
+    68.403s  K-TSP (Top-Scoring Pairs)
+    26.281s  SVM (RBF)
+    25.878s  SVM (linear)
+    25.833s  Logistic Regression
+    23.582s  Decision Tree
+    22.617s  Naive Bayes
+    22.563s  k-NN
+    22.545s  Nearest Shrunken Centroid
+
+Time by feature map:
+   301.764s  Rank transform (TSP-style)
+   284.179s  None (identity)
+    90.854s  Select best 500 genes
+    75.609s  PCA (50 components)
+    74.348s  Class-conditional PCA
+
+Flagged unreliable by the app's honesty guard (collapsed to one class, finds almost none of one group, no better than chance, or did not converge):
+  bal.acc 0.444  Log2 + standardize | Class-conditional PCA | Gradient Boosting
+
+Parallel speedup (whole grid, dispatched slowest-first with batch_size=1 -- the app's scheduler):
+  cores   wall(s)   speedup   efficiency
+      1     814.5      1.0   1.0
+      2     417.5   1.9507   0.9754
+      4     217.5   3.7447   0.9362
+      8     112.6   7.2317   0.904
+     16      61.8  13.1779   0.8236

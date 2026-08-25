@@ -1,0 +1,75 @@
+TML4 grid profiling summary
+========================================
+host              : scc-ge2
+logical cores     : 32
+app would use     : 16 (pipeline.max_workers; set TML4_MAX_JOBS to cap it)
+dataset           : Prostate2.txt [tan]
+matrix (n x p)    : 88 x 12625
+rigour            : 5-fold CV
+registries        : 5 preprocess x 5 feature maps x 11 models = 275
+combinations      : 275 (275 ok, 0 failed, 0 timed out)
+non-converged     : 5 (ran, but a solver hit its iteration limit)
+unreliable        : 8 (ran, but the app would refuse to auto-pick them)
+total serial time : 1524.1s (sum of per-combo, single-threaded, excl. timeouts)
+
+Worst offenders (slowest 15):
+    62.641s  Robust standardize (median/IQR) | Rank transform (TSP-style) | Gradient Boosting
+    61.271s  Robust standardize (median/IQR) | None (identity) | Gradient Boosting
+    59.281s  Variance filter + standardize | Rank transform (TSP-style) | Gradient Boosting
+    58.996s  Standardize (z-score) | Rank transform (TSP-style) | Gradient Boosting
+    58.165s  None (identity) | Rank transform (TSP-style) | Gradient Boosting
+    57.728s  Log2 + standardize | None (identity) | Gradient Boosting
+    57.509s  None (identity) | None (identity) | Gradient Boosting
+    57.496s  Standardize (z-score) | None (identity) | Gradient Boosting
+    57.143s  Log2 + standardize | Rank transform (TSP-style) | Gradient Boosting
+    56.430s  Variance filter + standardize | None (identity) | Gradient Boosting
+    39.634s  Robust standardize (median/IQR) | Rank transform (TSP-style) | Hist Gradient Boosting
+    38.497s  Robust standardize (median/IQR) | None (identity) | Hist Gradient Boosting
+    36.598s  Log2 + standardize | Rank transform (TSP-style) | Hist Gradient Boosting
+    35.718s  None (identity) | Rank transform (TSP-style) | Hist Gradient Boosting
+    35.672s  Variance filter + standardize | Rank transform (TSP-style) | Hist Gradient Boosting
+
+Time by classifier (summed over preprocess x feature-map):
+   626.852s  Gradient Boosting
+   386.183s  Hist Gradient Boosting
+   144.564s  Random Forest
+    83.519s  K-TSP (Top-Scoring Pairs)
+    52.781s  SVM (linear)
+    46.610s  SVM (RBF)
+    41.665s  Decision Tree
+    39.710s  Logistic Regression
+    34.443s  Naive Bayes
+    34.002s  k-NN
+    33.775s  Nearest Shrunken Centroid
+
+Time by feature map:
+   611.048s  Rank transform (TSP-style)
+   562.781s  None (identity)
+   120.403s  PCA (50 components)
+   115.413s  Class-conditional PCA
+   114.460s  Select best 500 genes
+
+Did NOT converge (solver hit its iteration cap -- the time was spent, the answer is not trustworthy):
+  None (identity) | Class-conditional PCA | SVM (linear)
+  Standardize (z-score) | Class-conditional PCA | SVM (linear)
+  Robust standardize (median/IQR) | Class-conditional PCA | SVM (linear)
+  Variance filter + standardize | Class-conditional PCA | SVM (linear)
+  Log2 + standardize | Class-conditional PCA | SVM (linear)
+
+Flagged unreliable by the app's honesty guard (collapsed to one class, finds almost none of one group, no better than chance, or did not converge):
+  bal.acc 0.600  None (identity) | Class-conditional PCA | SVM (linear)
+  bal.acc 0.650  Standardize (z-score) | Class-conditional PCA | SVM (linear)
+  bal.acc 0.516  Robust standardize (median/IQR) | None (identity) | Nearest Shrunken Centroid
+  bal.acc 0.719  Robust standardize (median/IQR) | Class-conditional PCA | SVM (linear)
+  bal.acc 0.650  Variance filter + standardize | Class-conditional PCA | SVM (linear)
+  bal.acc 0.475  Log2 + standardize | Class-conditional PCA | Gradient Boosting
+  bal.acc 0.729  Log2 + standardize | Class-conditional PCA | SVM (linear)
+  bal.acc 0.488  Log2 + standardize | Class-conditional PCA | Decision Tree
+
+Parallel speedup (whole grid, dispatched slowest-first with batch_size=1 -- the app's scheduler):
+  cores   wall(s)   speedup   efficiency
+      1    1503.6      1.0   1.0
+      2     776.6   1.9362   0.9681
+      4     393.4   3.8222   0.9555
+      8     205.5   7.3153   0.9144
+     16     126.3  11.9049   0.7441

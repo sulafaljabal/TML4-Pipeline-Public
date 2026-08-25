@@ -1,0 +1,89 @@
+TML4 grid profiling summary
+========================================
+host              : scc-gf1
+logical cores     : 32
+app would use     : 16 (pipeline.max_workers; set TML4_MAX_JOBS to cap it)
+dataset           : GCM.txt [tan]
+matrix (n x p)    : 280 x 16063
+rigour            : 5-fold CV
+registries        : 5 preprocess x 5 feature maps x 11 models = 275
+combinations      : 275 (266 ok, 9 failed, 9 timed out)
+non-converged     : 7 (ran, but a solver hit its iteration limit)
+unreliable        : 7 (ran, but the app would refuse to auto-pick them)
+total serial time : 3749.2s (sum of per-combo, single-threaded, excl. timeouts)
+
+Worst offenders (slowest 15):
+   248.354s  Log2 + standardize | None (identity) | Gradient Boosting
+   228.184s  Robust standardize (median/IQR) | Rank transform (TSP-style) | Hist Gradient Boosting
+   225.533s  None (identity) | Rank transform (TSP-style) | Hist Gradient Boosting
+   223.486s  Log2 + standardize | Rank transform (TSP-style) | Hist Gradient Boosting
+   222.063s  Standardize (z-score) | Rank transform (TSP-style) | Hist Gradient Boosting
+   221.040s  Variance filter + standardize | Rank transform (TSP-style) | Hist Gradient Boosting
+   206.099s  Robust standardize (median/IQR) | None (identity) | Hist Gradient Boosting
+   200.922s  Variance filter + standardize | None (identity) | Hist Gradient Boosting
+   199.393s  None (identity) | None (identity) | Hist Gradient Boosting
+   198.080s  Standardize (z-score) | None (identity) | Hist Gradient Boosting
+   187.709s  Log2 + standardize | None (identity) | Hist Gradient Boosting
+    25.318s  Robust standardize (median/IQR) | Rank transform (TSP-style) | SVM (RBF)
+    21.509s  Robust standardize (median/IQR) | Rank transform (TSP-style) | SVM (linear)
+    20.329s  Robust standardize (median/IQR) | None (identity) | SVM (RBF)
+    20.042s  Log2 + standardize | Rank transform (TSP-style) | SVM (RBF)
+
+Time by classifier (summed over preprocess x feature-map):
+  2176.650s  Hist Gradient Boosting
+   347.521s  Gradient Boosting
+   232.536s  SVM (linear)
+   226.415s  SVM (RBF)
+   176.544s  Random Forest
+   141.029s  Decision Tree
+   121.070s  K-TSP (Top-Scoring Pairs)
+   103.276s  Logistic Regression
+    76.292s  Naive Bayes
+    73.951s  Nearest Shrunken Centroid
+    73.869s  k-NN
+
+Time by feature map:
+  1553.163s  Rank transform (TSP-style)
+  1520.436s  None (identity)
+   240.858s  Class-conditional PCA
+   218.998s  PCA (50 components)
+   215.699s  Select best 500 genes
+
+TIMED OUT (killed at the 300.0s budget -- investigate these):
+  None (identity) | None (identity) | Gradient Boosting
+  None (identity) | Rank transform (TSP-style) | Gradient Boosting
+  Standardize (z-score) | None (identity) | Gradient Boosting
+  Standardize (z-score) | Rank transform (TSP-style) | Gradient Boosting
+  Robust standardize (median/IQR) | None (identity) | Gradient Boosting
+  Robust standardize (median/IQR) | Rank transform (TSP-style) | Gradient Boosting
+  Variance filter + standardize | None (identity) | Gradient Boosting
+  Variance filter + standardize | Rank transform (TSP-style) | Gradient Boosting
+  Log2 + standardize | Rank transform (TSP-style) | Gradient Boosting
+
+Did NOT converge (solver hit its iteration cap -- the time was spent, the answer is not trustworthy):
+  None (identity) | PCA (50 components) | Logistic Regression
+  None (identity) | PCA (50 components) | SVM (linear)
+  None (identity) | Class-conditional PCA | SVM (linear)
+  Standardize (z-score) | Class-conditional PCA | SVM (linear)
+  Robust standardize (median/IQR) | Class-conditional PCA | SVM (linear)
+  Variance filter + standardize | Class-conditional PCA | SVM (linear)
+  Log2 + standardize | Class-conditional PCA | SVM (linear)
+
+Flagged unreliable by the app's honesty guard (collapsed to one class, finds almost none of one group, no better than chance, or did not converge):
+  bal.acc 0.731  None (identity) | PCA (50 components) | Logistic Regression
+  bal.acc 0.739  None (identity) | PCA (50 components) | SVM (linear)
+  bal.acc 0.735  None (identity) | Class-conditional PCA | SVM (linear)
+  bal.acc 0.774  Standardize (z-score) | Class-conditional PCA | SVM (linear)
+  bal.acc 0.720  Robust standardize (median/IQR) | Class-conditional PCA | SVM (linear)
+  bal.acc 0.774  Variance filter + standardize | Class-conditional PCA | SVM (linear)
+  bal.acc 0.773  Log2 + standardize | Class-conditional PCA | SVM (linear)
+
+Combinations that failed on this data (skipped):
+
+Parallel speedup (whole grid, dispatched slowest-first with batch_size=1 -- the app's scheduler):
+  cores   wall(s)   speedup   efficiency
+      1    3727.0      1.0   1.0
+      2    1911.9   1.9493   0.9747
+      4     947.3   3.9345   0.9836
+      8     527.6   7.0634   0.8829
+     16     305.2  12.2118   0.7632
