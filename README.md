@@ -531,3 +531,8 @@ Judgment calls left for the team rather than made unilaterally:
 - **How to present perfect scores.** Leukemia / Lung / Prostate3 hit 1.000 — on 30–180
   patients against 12k+ genes that's an overfitting / easy-benchmark warning, not a
   triumph. Present as "the pipeline runs correctly," not "the model is 100% accurate."
+
+
+# Part 5 — Pipeline Flowchart
+
+![alt text](<Pipeline Flowchart Image.jpg>)
