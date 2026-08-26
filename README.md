@@ -340,7 +340,7 @@ shifts. Because it runs the *entire* machine, attributions land in the original 
 space even when PCA is active, and it only needs `predict_proba`, so it works for every
 classifier.
 
-`pipeline_flow.drawio` (diagrams.net) is the editable architecture diagram: every module
+`Pipeline Flowchart/flowchart.drawio` (diagrams.net) is the editable architecture diagram: every module
 box carries its name, key options, and IN/OUT, with each module's OUT matching the next
 one's IN.
 
@@ -412,7 +412,10 @@ docs/
 tests/               pytest suite
 Dockerfile           image for the HF Space and the BU server
 DEPLOYMENT.md        deployment checklist (3 targets)
-pipeline_flow.drawio editable architecture diagram (diagrams.net)
+Pipeline Flowchart/
+  flowchart.drawio   editable architecture diagram (diagrams.net)
+  Image.jpg          exported flowchart image (embedded in Part 5)
+  Flowchart.pdf      exported flowchart, print version
 convert_leukemia.py  Golub ALL/AML ARFF -> app-ready CSV
 requirements.txt
 ```
@@ -535,4 +538,4 @@ Judgment calls left for the team rather than made unilaterally:
 
 # Part 5 — Pipeline Flowchart
 
-![alt text](<Pipeline Flowchart Image.jpg>)
+![alt text](<Pipeline Flowchart/Image.jpg>)
